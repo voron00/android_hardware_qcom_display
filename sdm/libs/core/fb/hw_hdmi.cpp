@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2015 - 2017, The Linux Foundation. All rights reserved.
+* Copyright (c) 2015 - 2017,2019 The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are
@@ -206,6 +206,7 @@ HWHDMI::HWHDMI(BufferSyncHandler *buffer_sync_handler,  HWInfoInterface *hw_info
 
 DisplayError HWHDMI::Init() {
   DisplayError error = kErrorNone;
+  HWDisplayInterfaceInfo hw_disp_info;
 
   SetSourceProductInformation("vendor_name", "ro.product.manufacturer");
   SetSourceProductInformation("product_description", "ro.product.name");
@@ -248,6 +249,9 @@ DisplayError HWHDMI::Init() {
                              (kS3DModeTB, HDMI_S3D_TOP_AND_BOTTOM));
   s3d_mode_sdm_to_mdp_.insert(std::pair<HWS3DMode, msm_hdmi_s3d_mode>
                              (kS3DModeFP, HDMI_S3D_FRAME_PACKING));
+
+  hw_info_intf_->GetFirstDisplayInterfaceType(&hw_disp_info);
+  is_hdmi_primary_ = (hw_disp_info.type == kHDMI);
 
   return error;
 }
@@ -1162,6 +1166,17 @@ DisplayError HWHDMI::UpdateHDRMetaData(HWLayers *hw_layers) {
 #endif
 
   return error;
+}
+
+DisplayError HWHDMI::PowerOff() {
+  if (is_hdmi_primary_)
+  {
+    if (Sys::ioctl_(device_fd_, FBIOBLANK, FB_BLANK_POWERDOWN) < 0) {
+      IOCTL_LOGE(FB_BLANK_POWERDOWN, device_type_);
+      return kErrorHardware;
+    }
+  }
+  return kErrorNone;
 }
 
 }  // namespace sdm

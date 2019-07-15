@@ -158,6 +158,7 @@ class HWDevice : public HWInterface {
   mdp_output_layer mdp_out_layer_;
   const char *device_name_;
   bool synchronous_commit_;
+  bool is_hdmi_primary_;
   HWDisplayAttributes display_attributes_ = {};
   HWMixerAttributes mixer_attributes_ = {};
   std::vector<mdp_destination_scaler_data> mdp_dest_scalar_data_;
