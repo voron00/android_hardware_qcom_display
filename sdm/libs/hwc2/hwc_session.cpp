@@ -582,6 +582,7 @@ int32_t HWCSession::RegisterCallback(hwc2_device_t *device, int32_t descriptor,
     }
   }
   hwc_session->need_invalidate_ = false;
+  hwc_session->callback_reg_ = true;
   return INT32(error);
 }
 
@@ -1549,8 +1550,12 @@ void HWCSession::ResetPanel() {
 int HWCSession::HotPlugHandler(bool connected) {
   int status = 0;
   bool notify_hotplug = false;
-  if (!first_commit_ && !connected && hdmi_is_primary_) {
+  if (!first_commit_ && !connected && hdmi_is_primary_ && !null_display_active_) {
+    SCOPE_LOCK(locker_[HWC_DISPLAY_PRIMARY]);
     DLOGI("Disconnect event before first commit");
+    HWCDisplayExternal::Destroy(hwc_display_[HWC_DISPLAY_PRIMARY]);
+    CreateNullDisplay();
+    null_display_active_ = true;
     return 0;
   }
 

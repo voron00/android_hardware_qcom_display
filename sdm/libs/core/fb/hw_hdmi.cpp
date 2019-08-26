@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2015 - 2017, The Linux Foundation. All rights reserved.
+* Copyright (c) 2015 - 2017,2019 The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are
@@ -206,6 +206,7 @@ HWHDMI::HWHDMI(BufferSyncHandler *buffer_sync_handler,  HWInfoInterface *hw_info
 
 DisplayError HWHDMI::Init() {
   DisplayError error = kErrorNone;
+  HWDisplayInterfaceInfo hw_disp_info;
 
   SetSourceProductInformation("vendor_name", "ro.product.manufacturer");
   SetSourceProductInformation("product_description", "ro.product.name");
@@ -248,6 +249,9 @@ DisplayError HWHDMI::Init() {
                              (kS3DModeTB, HDMI_S3D_TOP_AND_BOTTOM));
   s3d_mode_sdm_to_mdp_.insert(std::pair<HWS3DMode, msm_hdmi_s3d_mode>
                              (kS3DModeFP, HDMI_S3D_FRAME_PACKING));
+
+  hw_info_intf_->GetFirstDisplayInterfaceType(&hw_disp_info);
+  is_hdmi_primary_ = (hw_disp_info.type == kHDMI);
 
   return error;
 }
@@ -353,8 +357,10 @@ DisplayError HWHDMI::GetDisplayAttributes(uint32_t index,
 
   GetDisplayS3DSupport(index, display_attributes);
   std::bitset<32> pixel_formats = timing_mode->pixel_formats;
+  display_attributes->pixel_formats = timing_mode->pixel_formats;
 
   display_attributes->is_yuv = pixel_formats[1];
+  display_attributes->clock_khz = timing_mode->pixel_freq;
 
   return kErrorNone;
 }
@@ -373,7 +379,7 @@ DisplayError HWHDMI::SetDisplayAttributes(uint32_t index) {
     return kErrorHardware;
   }
 
-  DLOGI("GetInfo<Mode=%d %dx%d (%d,%d,%d),(%d,%d,%d) %dMHz>", vscreeninfo.reserved[3],
+  DLOGI("GetInfo<Mode=%d %dx%d (%d,%d,%d),(%d,%d,%d) %dMHz>", (vscreeninfo.reserved[3] >>16 & 0xFF),
         vscreeninfo.xres, vscreeninfo.yres, vscreeninfo.right_margin, vscreeninfo.hsync_len,
         vscreeninfo.left_margin, vscreeninfo.lower_margin, vscreeninfo.vsync_len,
         vscreeninfo.upper_margin, vscreeninfo.pixclock/1000000);
@@ -399,7 +405,7 @@ DisplayError HWHDMI::SetDisplayAttributes(uint32_t index) {
     return kErrorHardware;
   }
 
-  DLOGI("SetInfo<Mode=%d %dx%d (%d,%d,%d),(%d,%d,%d) %dMHz>", vscreeninfo.reserved[3] & 0xFF00,
+  DLOGI("SetInfo<Mode=%d %dx%d (%d,%d,%d),(%d,%d,%d) %dMHz>", (vscreeninfo.reserved[3]>>16 & 0xFF),
         vscreeninfo.xres, vscreeninfo.yres, vscreeninfo.right_margin, vscreeninfo.hsync_len,
         vscreeninfo.left_margin, vscreeninfo.lower_margin, vscreeninfo.vsync_len,
         vscreeninfo.upper_margin, vscreeninfo.pixclock/1000000);
@@ -428,6 +434,27 @@ DisplayError HWHDMI::SetDisplayAttributes(uint32_t index) {
 
   SetS3DMode(kS3DModeNone);
 
+  return kErrorNone;
+}
+
+DisplayError HWHDMI::SetConfigAttributes(uint32_t index, uint32_t width, uint32_t height)
+{
+    if (index >= hdmi_modes_.size()) {
+    return kErrorNotSupported;
+  }
+
+  // Get the resolution info from the look up table
+  msm_hdmi_mode_timing_info *timing_mode = &supported_video_modes_[0];
+  for (uint32_t i = 0; i < hdmi_modes_.size(); i++) {
+    msm_hdmi_mode_timing_info *cur = &supported_video_modes_[i];
+    if (cur->video_format == hdmi_modes_[index]) {
+      timing_mode = cur;
+      break;
+    }
+  }
+
+  timing_mode->active_h = width;
+  timing_mode->active_v = height;
   return kErrorNone;
 }
 
@@ -1141,6 +1168,17 @@ DisplayError HWHDMI::UpdateHDRMetaData(HWLayers *hw_layers) {
 #endif
 
   return error;
+}
+
+DisplayError HWHDMI::PowerOff() {
+  if (is_hdmi_primary_)
+  {
+    if (Sys::ioctl_(device_fd_, FBIOBLANK, FB_BLANK_POWERDOWN) < 0) {
+      IOCTL_LOGE(FB_BLANK_POWERDOWN, device_type_);
+      return kErrorHardware;
+    }
+  }
+  return kErrorNone;
 }
 
 }  // namespace sdm

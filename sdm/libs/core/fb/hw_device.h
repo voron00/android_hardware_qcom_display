@@ -99,6 +99,7 @@ class HWDevice : public HWInterface {
   virtual DisplayError GetMixerAttributes(HWMixerAttributes *mixer_attributes);
   virtual DisplayError SetDynamicDSIClock(uint64_t bitclk);
   virtual DisplayError GetDynamicDSIClock(uint64_t *bitclk);
+  virtual DisplayError SetConfigAttributes(uint32_t index, uint32_t width, uint32_t height);
 
   enum {
     kHWEventVSync,
@@ -157,6 +158,7 @@ class HWDevice : public HWInterface {
   mdp_output_layer mdp_out_layer_;
   const char *device_name_;
   bool synchronous_commit_;
+  bool is_hdmi_primary_;
   HWDisplayAttributes display_attributes_ = {};
   HWMixerAttributes mixer_attributes_ = {};
   std::vector<mdp_destination_scaler_data> mdp_dest_scalar_data_;
