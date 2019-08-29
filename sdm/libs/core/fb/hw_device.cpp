@@ -1471,5 +1471,9 @@ DisplayError HWDevice::GetDynamicDSIClock(uint64_t *bitclk) {
   return kErrorNotSupported;
 }
 
+DisplayError HWDevice::ClearConfigs() {
+  return kErrorNone;
+}
+
 }  // namespace sdm
 

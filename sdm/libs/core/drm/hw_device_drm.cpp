@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2017 - 2018, The Linux Foundation. All rights reserved.
+* Copyright (c) 2017 - 2019, The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are
@@ -1072,6 +1072,10 @@ DisplayError HWDeviceDRM::GetConfigIndex(uint32_t width, uint32_t height, uint32
 
 
 DisplayError HWDeviceDRM::SetConfigAttributes(uint32_t index, uint32_t width, uint32_t height) {
+  return kErrorNone;
+}
+
+DisplayError HWDeviceDRM::ClearConfigs() {
   return kErrorNone;
 }
 
