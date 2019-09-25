@@ -275,6 +275,25 @@ DisplayError HWHDMI::SetActiveConfig(uint32_t active_config) {
   return kErrorNone;
 }
 
+DisplayError HWHDMI::ClearConfigs() {
+
+  msm_hdmi_mode_timing_info timing_mode = supported_video_modes_[0];
+  for (uint32_t i = 0; i < hdmi_modes_.size(); i++) {
+    msm_hdmi_mode_timing_info *cur = &supported_video_modes_[i];
+    if (cur->video_format == hdmi_modes_[active_config_index_]) {
+      timing_mode = *cur;
+      break;
+    }
+  }
+  uint32_t format =  hdmi_modes_[active_config_index_];
+  hdmi_modes_.clear();
+  supported_video_modes_.clear();
+  hdmi_modes_.push_back(format);
+  supported_video_modes_.push_back(timing_mode);
+  active_config_index_ = 0;
+  return kErrorNone;
+}
+
 DisplayError HWHDMI::ReadEDIDInfo() {
   ssize_t length = -1;
   char edid_str[kPageSize] = {'\0'};

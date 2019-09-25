@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2015 - 2017, The Linux Foundation. All rights reserved.
+* Copyright (c) 2015 - 2017, 2019 The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted
 * provided that the following conditions are met:
@@ -77,6 +77,7 @@ class HWHDMI : public HWDevice {
   // Requirement to call this only after the first config has been explicitly set by client
   virtual DisplayError GetActiveConfig(uint32_t *active_config);
   virtual DisplayError SetActiveConfig(uint32_t active_config);
+  virtual DisplayError ClearConfigs();
   virtual DisplayError GetDisplayAttributes(uint32_t index,
                                             HWDisplayAttributes *display_attributes);
   virtual DisplayError GetHWScanInfo(HWScanInfo *scan_info);
