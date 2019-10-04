@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2014 - 2018, The Linux Foundation. All rights reserved.
+* Copyright (c) 2014 - 2019, The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted
 * provided that the following conditions are met:
@@ -526,7 +526,6 @@ DisplayError DisplayBase::SetActiveConfig(uint32_t index) {
   if (error != kErrorNone) {
     return error;
   }
-  panel_config_index_ = index;
   return ReconfigureDisplay();
 }
 
@@ -1038,18 +1037,9 @@ DisplayError DisplayBase::ReconfigureDisplay() {
   if (error != kErrorNone) {
     return error;
   }
-  if (dest_scale_enabled_) {
-    if (active_index != mixer_config_index_) {
-      // we are here because Client of SDM has changed the active config
-      error = hw_intf_->GetDisplayAttributes(active_index, &display_attributes);
-    } else {
-      error = hw_intf_->GetDisplayAttributes(panel_config_index_, &display_attributes);
-    }
-  } else {
-    error = hw_intf_->GetDisplayAttributes(active_index, &display_attributes);
-    if (error != kErrorNone) {
+  error = hw_intf_->GetDisplayAttributes(active_index, &display_attributes);
+  if (error != kErrorNone) {
       return error;
-    }
   }
 
   error = hw_intf_->GetMixerAttributes(&mixer_attributes);
