@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2014 - 2018, The Linux Foundation. All rights reserved.
+* Copyright (c) 2014 - 2019, The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are
@@ -910,7 +910,7 @@ android::status_t HWCSession::HandleSetActiveDisplayConfig(const android::Parcel
   int dpy = input_parcel->readInt32();
   int error = android::BAD_VALUE;
 
-  if (dpy > HWC_DISPLAY_VIRTUAL) {
+  if (dpy < HWC_DISPLAY_PRIMARY || dpy > HWC_DISPLAY_VIRTUAL) {
     return android::BAD_VALUE;
   }
 
@@ -929,7 +929,7 @@ android::status_t HWCSession::HandleGetActiveDisplayConfig(const android::Parcel
   int dpy = input_parcel->readInt32();
   int error = android::BAD_VALUE;
 
-  if (dpy > HWC_DISPLAY_VIRTUAL) {
+  if (dpy < HWC_DISPLAY_PRIMARY || dpy > HWC_DISPLAY_VIRTUAL) {
     return android::BAD_VALUE;
   }
 
@@ -949,7 +949,7 @@ android::status_t HWCSession::HandleGetDisplayConfigCount(const android::Parcel 
   int dpy = input_parcel->readInt32();
   int error = android::BAD_VALUE;
 
-  if (dpy > HWC_DISPLAY_VIRTUAL) {
+  if (dpy < HWC_DISPLAY_PRIMARY || dpy > HWC_DISPLAY_VIRTUAL) {
     return android::BAD_VALUE;
   }
 
