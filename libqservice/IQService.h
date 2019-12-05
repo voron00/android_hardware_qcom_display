@@ -79,6 +79,7 @@ public:
         GET_DSI_CLK = 37, // Get DSI Clk.
         GET_SUPPORTED_DSI_CLK = 38, // Get supported DSI Clk.
         GET_COMPOSER_STATUS = 39, // Get composer init status-true if primary display init is done
+        SET_STAND_BY_MODE = 40, //Set stand by mode for MDP3 hardware.
         COMMAND_LIST_END = 400,
     };
 

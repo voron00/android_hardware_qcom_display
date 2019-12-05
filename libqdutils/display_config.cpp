@@ -442,3 +442,19 @@ extern "C" int waitForComposerInit() {
 
     return !status;
 }
+
+extern "C" int setStandByMode(int mode) {
+    status_t err = (status_t) FAILED_TRANSACTION;
+    sp<IQService> binder = getBinder();
+    Parcel inParcel, outParcel;
+
+    if(binder != NULL) {
+        inParcel.writeInt32(mode);
+        err = binder->dispatch(IQService::SET_STAND_BY_MODE,
+              &inParcel, &outParcel);
+        if(err) {
+            ALOGE("%s() failed with err %d", __FUNCTION__, err);
+        }
+    }
+    return err;
+}
