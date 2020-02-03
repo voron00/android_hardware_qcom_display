@@ -169,6 +169,8 @@ uint64_t getDsiClk(int dpy);
 // Get supported bit clk values.
 int getSupportedBitClk(int dpy, std::vector<uint64_t>& bit_rates);
 
+int setStandByMode(int mode);
+
 }; //namespace
 
 

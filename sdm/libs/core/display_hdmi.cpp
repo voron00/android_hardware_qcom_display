@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2014 - 2019, The Linux Foundation. All rights reserved.
+* Copyright (c) 2014 - 2020, The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted
 * provided that the following conditions are met:
@@ -38,6 +38,7 @@
 #define FMT_RGB 1
 #define FMT_ONLY_YUV 2
 #define FMT_RGB_YUV 3
+#define STANDARD_VIC 127  // 1-127 are standard vic-ids
 
 namespace sdm {
 
@@ -141,8 +142,12 @@ DisplayError DisplayHDMI::Init() {
                             (kS3dFormatTopBottom, kS3DModeTB));
   s3d_format_to_mode_.insert(std::pair<LayerBufferS3DFormat, HWS3DMode>
                             (kS3dFormatFramePacking, kS3DModeFP));
+  if (hw_disp_info.type == kHDMI) {
+    error = HWEventsInterface::Create(kPrimary, this, event_list_, &hw_events_intf_);
+  } else {
+    error = HWEventsInterface::Create(INT(display_type_), this, event_list_, &hw_events_intf_);
+  }
 
-  error = HWEventsInterface::Create(INT(display_type_), this, event_list_, &hw_events_intf_);
   if (error != kErrorNone) {
     DisplayBase::Deinit();
     HWInterface::Destroy(hw_intf_);
@@ -250,6 +255,15 @@ uint32_t DisplayHDMI::GetBestConfig(HWS3DMode s3d_mode) {
   uint32_t best_index = 0, index;
   uint32_t num_modes = 0;
 
+  std::vector<uint32_t> hdmi_modes;
+
+  hw_intf_->GetHdmiMode(hdmi_modes);
+
+  for(uint32_t i =0;i < hdmi_modes.size();i++)
+  {
+    DLOGI("hdmi_modes val = %u", hdmi_modes[i]);
+  }
+
   hw_intf_->GetNumDisplayAttributes(&num_modes);
   DLOGI("Number of modes = %d",num_modes);
   // Get display attribute for each mode
@@ -280,6 +294,18 @@ uint32_t DisplayHDMI::GetBestConfig(HWS3DMode s3d_mode) {
               index,current_clock_khz,best_clock_khz);
         best_index = UINT32(index);
       } else if (current_clock_khz == best_clock_khz) {
+         DLOGI("Same pix clock. clock = %d . v1 = %d.. v2 = %d",
+         current_clock_khz,hdmi_modes[best_index],hdmi_modes[index]);
+        if ((hdmi_modes[index] > STANDARD_VIC && hdmi_modes[best_index] <= STANDARD_VIC)) {
+          // we should not select the non-standard vic-id.
+          DLOGI("Standard vic already selected");
+          continue;
+        } else if((hdmi_modes[index] <= STANDARD_VIC && hdmi_modes[best_index] > STANDARD_VIC)) {
+          // select the standard vic-id
+          best_index = UINT32(index);
+          DLOGI("Selecting Standard vic now. Best index = %d", best_index);
+          continue;
+        }
         if (attrib[index].x_pixels > attrib[best_index].x_pixels) {
           DLOGI("Best index = %d .Best xpixel  = %d .Previous best was %d",
                 index,attrib[index].x_pixels,attrib[best_index].x_pixels);
@@ -396,7 +422,6 @@ DisplayError DisplayHDMI::VSync(int64_t timestamp) {
     vsync.timestamp = timestamp;
     event_handler_->VSync(vsync);
   }
-
   return kErrorNone;
 }
 

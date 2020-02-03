@@ -741,5 +741,10 @@ DisplayError HWPrimary::ClearConfigs() {
   return kErrorNone;
 }
 
+DisplayError HWPrimary::GetHdmiMode(std::vector<uint32_t> &hdmi_modes) {
+  return kErrorNone;
+}
+
+
 }  // namespace sdm
 
