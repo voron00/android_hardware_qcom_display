@@ -376,10 +376,8 @@ DisplayError HWHDMI::GetDisplayAttributes(uint32_t index,
 
   GetDisplayS3DSupport(index, display_attributes);
   std::bitset<32> pixel_formats = timing_mode->pixel_formats;
-  display_attributes->pixel_formats = timing_mode->pixel_formats;
 
   display_attributes->is_yuv = pixel_formats[1];
-  display_attributes->clock_khz = timing_mode->pixel_freq;
 
   return kErrorNone;
 }
@@ -398,7 +396,7 @@ DisplayError HWHDMI::SetDisplayAttributes(uint32_t index) {
     return kErrorHardware;
   }
 
-  DLOGI("GetInfo<Mode=%d %dx%d (%d,%d,%d),(%d,%d,%d) %dMHz>", (vscreeninfo.reserved[3] >>16 & 0xFF),
+  DLOGI("GetInfo<Mode=%d %dx%d (%d,%d,%d),(%d,%d,%d) %dMHz>", vscreeninfo.reserved[3],
         vscreeninfo.xres, vscreeninfo.yres, vscreeninfo.right_margin, vscreeninfo.hsync_len,
         vscreeninfo.left_margin, vscreeninfo.lower_margin, vscreeninfo.vsync_len,
         vscreeninfo.upper_margin, vscreeninfo.pixclock/1000000);
@@ -424,7 +422,7 @@ DisplayError HWHDMI::SetDisplayAttributes(uint32_t index) {
     return kErrorHardware;
   }
 
-  DLOGI("SetInfo<Mode=%d %dx%d (%d,%d,%d),(%d,%d,%d) %dMHz>", (vscreeninfo.reserved[3]>>16 & 0xFF),
+  DLOGI("SetInfo<Mode=%d %dx%d (%d,%d,%d),(%d,%d,%d) %dMHz>", vscreeninfo.reserved[3] & 0xFF00,
         vscreeninfo.xres, vscreeninfo.yres, vscreeninfo.right_margin, vscreeninfo.hsync_len,
         vscreeninfo.left_margin, vscreeninfo.lower_margin, vscreeninfo.vsync_len,
         vscreeninfo.upper_margin, vscreeninfo.pixclock/1000000);
