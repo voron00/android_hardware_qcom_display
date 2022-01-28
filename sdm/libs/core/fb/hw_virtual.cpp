@@ -91,10 +91,5 @@ DisplayError HWVirtual::ClearConfigs() {
   return kErrorNone;
 }
 
-DisplayError HWVirtual::GetHdmiMode(std::vector<uint32_t> &hdmi_modes) {
-  return kErrorNone;
-}
-
-
 }  // namespace sdm
 

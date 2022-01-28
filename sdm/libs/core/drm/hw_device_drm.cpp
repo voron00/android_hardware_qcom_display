@@ -1079,8 +1079,5 @@ DisplayError HWDeviceDRM::ClearConfigs() {
   return kErrorNone;
 }
 
-DisplayError HWDeviceDRM::GetHdmiMode(std::vector<uint32_t> &hdmi_modes) {
-  return kErrorNone;
-}
 
 }  // namespace sdm

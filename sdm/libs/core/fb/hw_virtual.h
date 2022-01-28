@@ -42,7 +42,6 @@ class HWVirtual : public HWDevice {
                                             HWDisplayAttributes *display_attributes);
   virtual DisplayError SetActiveConfig(uint32_t active_config);
   virtual DisplayError ClearConfigs();
-  virtual DisplayError GetHdmiMode(std::vector<uint32_t> &hdmi_modes);
 
  protected:
   virtual DisplayError Init();
